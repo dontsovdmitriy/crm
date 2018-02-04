@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <http auto-config="true">
+    
+   		<!-- Permit All -->
+		<intercept-url pattern="/user/login" access="permitAll"/>
+       	<intercept-url pattern="/user/registration" access="permitAll"/>
+        
+        
+        <!-- User Roles -->
+        <intercept-url pattern="/client/**" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/action/**" access="hasRole('ROLE_USER')"/>
+        <intercept-url pattern="/contactPerson/**" access="hasRole('ROLE_USER')"/>
+             
+        
+        <!--Admin Roles-->
+        <intercept-url pattern="/role/**" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/target/**" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/user/**" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/user/list" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/role/list" access="hasRole('ROLE_ADMIN')"/>
+        <intercept-url pattern="/user/showUserRoles" access="hasRole('ROLE_ADMIN')"/>
+        
+        
+        <form-login login-page="/user/login" default-target-url="/user/welcome" always-use-default-target="true" authentication-failure-url="/user/login?error"
+                    username-parameter="username" password-parameter="password"/>
+
+        <logout logout-success-url="/user/login?logout"/>
+        
+        <access-denied-handler error-page="/user/accessDenied" />
+        
+    </http>
+
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider user-service-ref="userDetailsServiceImpl">
+            <password-encoder ref="encoder"></password-encoder>
+        </authentication-provider>
+    </authentication-manager>
+
+    <beans:bean id="userDetailsServiceImpl"
+                class="com.dontsov.service.impl.UserDetailsServiceImpl"></beans:bean>
+
+    <beans:bean id="encoder"
+                class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+        <beans:constructor-arg name="strength" value="11"/>
+    </beans:bean>
+    
+    
+</beans:beans>
